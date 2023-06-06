@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <Title>Tic Tac Toe</Title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <h1>Tic Tac Toe</h1>
+        <span>Current turn:</span><span id="turn">X</span>
+
+        <div id="board">
+            <div class="row">
+                <div class="tile row1 col1 diag1"></div>
+                <div class="tile row1 col2"></div>
+                <div class="tile row1 col3 diag2"></div>
+            </div>
+            <div class="row">
+                <div class="tile row2 col1"></div>
+                <div class="tile row2 col2 diag1 diag2"></div>
+                <div class="tile row2 col3"></div>
+            </div>
+            <div class="row">
+                <div class="tile row3 col1 diag2"></div>
+                <div class="tile row3 col2"></div>
+                <div class="tile row3 col3 diag1"></div>
+            </div>
+        </div>
+
+        <div id="winner"></div>
+    </body>
+    <script src="app.js"></script>
+</html>

@@ -1,0 +1,43 @@
+body {
+    background: #666666;
+    color: #FFFFFF;
+    font-family: sans-serif;
+    text-align: center;
+    user-select: none;
+  }
+  
+  .row {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .tile {
+    background: #333333;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    font-size: 65px;
+    height: 100px;
+    line-height: 100px;
+    margin: 2px;
+    text-align: center;
+    width: 100px;
+  }
+  
+  .x {
+    background-color: #CCEEEE;
+    color: #00CCCC;
+  }
+  
+  .o {
+    background-color: #EECCEE;
+    color: #CC00CC;
+  }
+  
+  #winner {
+    border-radius: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 10px auto;
+    padding: 10px;
+    width: 300px;
+  }

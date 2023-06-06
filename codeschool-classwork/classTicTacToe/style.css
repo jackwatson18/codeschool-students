@@ -1,0 +1,30 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+    background-color: #666666;
+    color: #FFFFFF;
+    font-size: 1.5rem;
+}
+
+span {
+    background-color: #333333;
+    font-size: 3rem;
+    padding: 10px;
+}
+
+.tile {
+    background: #333333;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    font-size: 65px;
+    height: 100px;
+    line-height: 100px;
+    margin: 2px;
+    text-align: center;
+    width: 100px;
+  }
+
+  .x {
+    background-color: #ccffcc;
+    color: #66ff66
+  }

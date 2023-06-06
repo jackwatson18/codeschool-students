@@ -1,0 +1,14 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: x-large;
+}
+
+span {
+    background-color: #cccccc;
+    margin: 3px;
+    padding: 5px;
+}
+
+.red {
+    background-color: #cc0000;
+}
