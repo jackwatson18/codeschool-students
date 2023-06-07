@@ -18,5 +18,6 @@
     - Import from a URL?
 - Possible words
  - Word Validation, make sure is a real word
-- Word checker
-    - Compare letters in guess to right answer
+- Word checker X
+    - Compare letters in guess to right answer X
+- Add new guesses to the guest list 
