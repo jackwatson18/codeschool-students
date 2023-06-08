@@ -5,6 +5,7 @@ var guessedWords = [];
 var NUM_GUESSES = 6;
 var WORD_LENGTH = 5;
 var GAME_OVER = false;
+var currentGuess = "";
 
 function pickRandomWord() {
     var randomIndex = Math.floor(possibleAnswers.length * Math.random());
@@ -24,15 +25,6 @@ function getWordList() {
     });
 }
 
-function updateGuesses() {
-    // get value from input
-
-    // validate word: right length and in valid words
-
-    // check against right word -- creating a new element
-
-    // add to our guesses and put on the screen
-}
 
 function checkWord(guessedWord, rightWord) {
     var checkArray = [0, 0, 0, 0, 0];
@@ -90,6 +82,12 @@ function updateGuesses() {
                     newLetter.classList.add("contains");
                 }
             }
+            else if (i == guessedWords.length) {
+                if (j < currentGuess.length) {
+                    newLetter.innerHTML = currentGuess[j];
+                }
+                
+            }
             newGuess.appendChild(newLetter);
         }
 
@@ -98,30 +96,30 @@ function updateGuesses() {
 }
 
 
-function setupInputs() {
-    var guessButton = document.querySelector("#guess-button");
-    guessButton.onclick = function() {
-        makeGuess();
+// function setupInputs() {
+//     var guessButton = document.querySelector("#guess-button");
+//     guessButton.onclick = function() {
+//         makeGuess();
         
         
-    }
-}
+//     }
+// }
 
 function makeGuess() {
     var guessInput = document.querySelector("#guess-input");
     var messageDiv = document.querySelector("#message");
 
     if (!GAME_OVER) {
-        if (guessInput.value.length != 5) {
+        if (currentGuess.length != 5) {
             messageDiv.innerHTML = "Five letters please.";
         }
-        else if (!validWords.includes(guessInput.value)) {
+        else if (!validWords.includes(currentGuess)) {
             messageDiv.innerHTML = "Not a real word.";
         }
         else {
-            var lastGuess = guessInput.value;
+            var lastGuess = currentGuess;
             guessedWords.push(lastGuess);
-            guessInput.value = "";
+            currentGuess = "";
 
             if (lastGuess == correctWord) {
                 messageDiv.innerHTML = "You win!";
@@ -142,21 +140,35 @@ function makeGuess() {
 }
 
 function setupKeys() {
+    var currentWordDiv = document.querySelector("#current-word");
+    console.log(currentWordDiv);
     document.onkeydown = function(event) {
         if (event.key == "Enter") {
             makeGuess();
         }
-
         else if (event.keyCode >= 65 && event.keyCode <= 90) {
-            keyboardWord += event.key;
-            console.log(keyboardWord);
+            if (currentGuess.length < 5) {
+                currentGuess += event.key;
+                console.log("currentGuess:",currentGuess);
+            }
+            
         }
+        else if (event.key == "Backspace") {
+            currentGuess = currentGuess.slice(0,-1);
+            console.log(currentGuess);
+        }
+        else {
+            console.log(event.key);
+        }
+
+        if (!GAME_OVER) {
+            currentWordDiv.innerHTML = currentGuess;
+            updateGuesses();
+        } 
     }
 }
 
-var keyboardWord = "";
-
 getWordList();
 updateGuesses();
-setupInputs();
+// setupInputs();
 setupKeys();
