@@ -3,6 +3,8 @@ var LENGTH = 5;
 
 var correctWord = "";
 var currentGuess = "";
+var numWins = {};
+var myName = "";
 
 var guesses = [];
 
@@ -10,18 +12,38 @@ var allowed = [];
 var answers = [];
 var gameOver = false;
 
+var numWinsDiv = document.querySelector("#num-wins");
+var myNameInput = document.querySelector("#my-name");
+var changeNameButton = document.querySelector("#change-name");
+var displayNameTag = document.querySelector("#display-name");
+
+changeNameButton.onclick = function() {
+    myName = myNameInput.value;
+    displayNameTag.innerHTML = myName;
+    saveState();
+    updateGuesses();
+}
+
+
+
 
 function saveState() {
     localStorage.setItem("correctWord", JSON.stringify(correctWord));
     localStorage.setItem("guesses", JSON.stringify(guesses));
     localStorage.setItem("gameOver", JSON.stringify(gameOver));
+    localStorage.setItem("myName", JSON.stringify(myName));
+    localStorage.setItem("numWins", JSON.stringify(numWins));
 }
 
 function loadState() {
     correctWord = JSON.parse(localStorage.getItem("correctWord"));
     guesses = JSON.parse(localStorage.getItem("guesses"));
     gameOver = JSON.parse(localStorage.getItem("gameOver"));
+    numWins = JSON.parse(localStorage.getItem("numWins"));
+    myName = JSON.parse(localStorage.getItem("myName"));
+    displayNameTag.innerHTML = myName;
 
+    console.log(numWins);
     if (!guesses) {
         guesses = [];
     }
@@ -38,10 +60,10 @@ function resetGame() {
 }
 
 function fetchWordList() {
-    fetch("https://api.jsonbin.io/v3/b/629f9937402a5b38021f6b38").then(function (response) {
+    fetch("https://raw.githubusercontent.com/chidiwilliams/wordle/main/src/data/words.json").then(function (response) {
         response.json().then(function (data) {
-            allowed = data.record.allowed.concat(data.record.answers);
-            answers = data.record.answers;
+            allowed = data;
+            answers = data;
 
             loadState();
             chooseNewWord();
@@ -111,6 +133,11 @@ function checkWord(correct, guess) {
 function updateGuesses() {
     var allGuessesDiv = document.querySelector("#guesses");
     allGuessesDiv.innerHTML = ""; // reset guessDiv to empty
+
+    // if (numWins[myName]) {
+    //     numWinsDiv.innerHTML = numWins[myName];
+    // }
+    
 
     for (var i = 0; i < ATTEMPTS; i++) {
         var guessDiv = document.createElement("div");
@@ -184,6 +211,13 @@ function submitGuess() {
             messageDiv.innerHTML = "";
             if (currentGuess == correctWord) {
                 messageDiv.innerHTML = "You win!";
+                // if (numWins[myName]) {
+                //     numWins[myName] += 1;
+                // }
+                // else {
+                //     numWins[myName] = 1;
+                // }
+                
                 gameOver = true;
             }
             else if (guesses.length == 6) {

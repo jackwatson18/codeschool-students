@@ -4,6 +4,7 @@ var possibleAnswers = [];
 var guessedWords = [];
 var NUM_GUESSES = 6;
 var WORD_LENGTH = 5;
+var numWins;
 var GAME_OVER = false;
 var currentGuess = "";
 
@@ -12,12 +13,14 @@ function saveState() {
     localStorage.setItem("correctWord", JSON.stringify(correctWord));
     localStorage.setItem("guesses", JSON.stringify(guessedWords));
     localStorage.setItem("gameOver", JSON.stringify(GAME_OVER));
+    localStorage.setItem("numWins", JSON.stringify(numWins));
 }
 
 function loadState() {
     correctWord = JSON.parse(localStorage.getItem("correctWord"));
     guessedWords = JSON.parse(localStorage.getItem("guesses"));
     GAME_OVER = JSON.parse(localStorage.getItem("gameOver"));
+    localStorage.JSON.parse(localStorage.getItem("numWins"));
 
     // What if they're empty though?
     if (!guessedWords) {
@@ -69,7 +72,10 @@ function getWordList() {
             // console.log(possibleAnswers);
             // validWords = data.record.allowed.concat(possibleAnswers);
             // console.log(validWords);
-            correctWord = getCurrentWord();
+            loadState();
+            chooseNewWord();
+            updateGuesses();
+            setupKeys();
         })
     });
 }
@@ -172,6 +178,7 @@ function makeGuess() {
 
             if (lastGuess == correctWord) {
                 messageDiv.innerHTML = "You win!";
+                numWins += 1;
                 GAME_OVER = true;
             }
             else {

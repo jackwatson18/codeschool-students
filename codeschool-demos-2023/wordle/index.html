@@ -7,7 +7,8 @@
     </head>
     <body>
         <h1>Wordle</h1>
-
+        <label>My name:</label><input type="text" id="my-name"><button id="change-name">Change Name</button>
+        <h2 id="display-name"></h2>
         <div id="guesses">
 
         </div>
@@ -16,6 +17,7 @@
             <input type="text" id="guess-input">
             <button id="guess-button">Guess</button>
             <div id="message"></div>
+            <div>Num wins: <span id="num-wins"></span></div>
         </div>
     </body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.3/moment.min.js"></script>
