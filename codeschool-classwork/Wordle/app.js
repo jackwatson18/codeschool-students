@@ -72,8 +72,8 @@ function updateGuesses() {
             if (i < guessedWords.length) {
                 newLetter.innerHTML = guessedWords[i][j];
 
-                var checkedOutput = checkWord(guessedWords[i], correctWord);
-                console.log(checkedOutput);
+                // var checkedOutput = checkWord(guessedWords[i], correctWord);
+                // console.log(checkedOutput);
 
                 if (checkedOutput[j] == 1) {
                     newLetter.classList.add("match");

@@ -10,13 +10,43 @@ var allowed = [];
 var answers = [];
 var gameOver = false;
 
+
+function saveState() {
+    localStorage.setItem("correctWord", JSON.stringify(correctWord));
+    localStorage.setItem("guesses", JSON.stringify(guesses));
+    localStorage.setItem("gameOver", JSON.stringify(gameOver));
+}
+
+function loadState() {
+    correctWord = JSON.parse(localStorage.getItem("correctWord"));
+    guesses = JSON.parse(localStorage.getItem("guesses"));
+    gameOver = JSON.parse(localStorage.getItem("gameOver"));
+
+    if (!guesses) {
+        guesses = [];
+    }
+    if (!gameOver) {
+        gameOver = false;
+    }
+}
+
+function resetGame() {
+    correctWord = "";
+    currentGuess = "";
+    guesses = [];
+    gameOver = false;
+}
+
 function fetchWordList() {
     fetch("https://api.jsonbin.io/v3/b/629f9937402a5b38021f6b38").then(function (response) {
         response.json().then(function (data) {
             allowed = data.record.allowed.concat(data.record.answers);
             answers = data.record.answers;
 
-            randomizeWord();
+            loadState();
+            chooseNewWord();
+            updateGuesses();
+            setupInputs();
         });
     });
 }
@@ -25,6 +55,26 @@ function randomizeWord() {
     var index = Math.floor(Math.random() * answers.length);
     correctWord = answers[index];
     console.log("The correct word is:",correctWord);
+}
+
+function chooseNewWord() {
+    var newWord = getCurrentWord();
+    if (!correctWord || correctWord != newWord) {
+        resetGame();
+        correctWord = newWord;
+        saveState();
+        console.log("The answer is now:", correctWord);
+    }
+    else {
+        console.log("The answer is still:", correctWord);
+    }
+}
+
+function getCurrentWord() {
+    var dateString = moment().format("YYYYMMDDHHmm");
+    var dateNumber = parseInt(dateString, 10);
+    var word = answers[dateNumber % answers.length];
+    return word;
 }
 
 function checkWord(correct, guess) {
@@ -143,6 +193,7 @@ function submitGuess() {
         }
 
         updateGuesses();
+        saveState();
     }
 }
 
@@ -168,6 +219,3 @@ function setupInputs() {
 
 // initialize by calling
 fetchWordList();
-setupInputs();
-setupInputs();
-updateGuesses();
