@@ -7,20 +7,69 @@ var WORD_LENGTH = 5;
 var GAME_OVER = false;
 var currentGuess = "";
 
-function pickRandomWord() {
-    var randomIndex = Math.floor(possibleAnswers.length * Math.random());
-    correctWord = possibleAnswers[randomIndex];
-    console.log(correctWord);
+
+function saveState() {
+    localStorage.setItem("correctWord", JSON.stringify(correctWord));
+    localStorage.setItem("guesses", JSON.stringify(guessedWords));
+    localStorage.setItem("gameOver", JSON.stringify(GAME_OVER));
 }
 
+function loadState() {
+    correctWord = JSON.parse(localStorage.getItem("correctWord"));
+    guessedWords = JSON.parse(localStorage.getItem("guesses"));
+    GAME_OVER = JSON.parse(localStorage.getItem("gameOver"));
+
+    // What if they're empty though?
+    if (!guessedWords) {
+        guessedWords = [];
+    }
+    if (!GAME_OVER) {
+        GAME_OVER = false;
+    }
+    
+}
+
+function resetGame() {
+    correctWord = "";
+    currentGuess = "";
+    guesses = [];
+    gameOver = false;
+}
+
+function getCurrentWord() {
+    var dateString = moment().format("YYYYMMDDHHmm");
+    var dateNumber = parseInt(dateString, 10);
+    var word = possibleAnswers[dateNumber % possibleAnswers.length];
+    console.log(word);
+    return word;
+}
+
+function chooseNewWord() {
+    var newWord = getCurrentWord();
+
+    if (!correctWord || correctWord != newWord) {
+        resetGame();
+        correctWord = newWord;
+    }
+}
+
+// function pickRandomWord() {
+//     var randomIndex = Math.floor(possibleAnswers.length * Math.random());
+//     correctWord = possibleAnswers[randomIndex];
+//     console.log(correctWord);
+// }
+
 function getWordList() {
-    fetch("https://api.jsonbin.io/v3/b/629f9937402a5b38021f6b38").then(function(response) {
+    fetch("https://raw.githubusercontent.com/chidiwilliams/wordle/main/src/data/words.json").then(function(response) {
         response.json().then(function (data) {
-            possibleAnswers = data.record.answers;
+            console.log(data);
+            possibleAnswers = data;
+            validWords = data;
+            // possibleAnswers = data.record.answers;
             // console.log(possibleAnswers);
-            validWords = data.record.allowed.concat(possibleAnswers);
+            // validWords = data.record.allowed.concat(possibleAnswers);
             // console.log(validWords);
-            pickRandomWord();
+            correctWord = getCurrentWord();
         })
     });
 }
@@ -141,7 +190,7 @@ function makeGuess() {
 
 function setupKeys() {
     var currentWordDiv = document.querySelector("#current-word");
-    console.log(currentWordDiv);
+    //console.log(currentWordDiv);
     document.onkeydown = function(event) {
         if (event.key == "Enter") {
             makeGuess();
