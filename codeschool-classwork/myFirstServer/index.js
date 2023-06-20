@@ -16,8 +16,13 @@ app.get("/reminders/:reminderId", function(req, res) {
     var index = req.params.reminderId;
     
     if (index >= 0 && index < myReminders.length) {
-        // Valid index
-        res.send(JSON.stringify(myReminders[index]));
+        if (myReminders[index]) {
+            // Valid index
+            res.send(JSON.stringify(myReminders[index]));
+        }
+        else {
+            res.status(404).send("Reminder not found.");
+        }
     }
 
     else {
@@ -55,6 +60,24 @@ app.put("/reminders/:reminderId", function(req, res) {
         }
     }
 
+    else {
+        res.status(404).send("Reminder not found.");
+    }
+
+});
+
+app.delete("/reminders/:reminderId", function(req, res) {
+    var index = req.params.reminderId;
+
+    if (index >= 0 && index < myReminders.length) {
+        if (myReminders[index] != undefined) {
+            myReminders[index] = undefined;
+            res.status(204).send("Reminder deleted.");
+        }
+        else {
+            res.status(404).send("Reminder not found.");
+        }
+    }
     else {
         res.status(404).send("Reminder not found.");
     }
