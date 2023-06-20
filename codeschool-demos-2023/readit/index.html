@@ -9,7 +9,7 @@
             <div id="app">
             <!-- Everything in here is managed by Vue -->
             <input type="text" placeholder="Book title" v-model="bookName">
-            <input type="number" placeholder="Author" v-model="bookAuthor">
+            <input type="text" placeholder="Author" v-model="bookAuthor">
             <input type="number" placeholder="Rating" v-model="bookRating">
             <button v-on:click="addBook">Add book</button>
             <div v-if="books.length>0">
@@ -17,7 +17,7 @@
             <ol>
                 <li v-for="book,i in books" v-bind:style="{ backgroundColor: i % 2==0 ? '#EEEEEE' : 'CCCCCC' }">
                     <div><strong>{{ book.title }} </strong></div>
-                    <div>Calories: {{ book.author }} </div>
+                    <div>Author: {{ book.author }} </div>
                     <div>Rating: {{ book.rating }} </div>
                 </li>
             </ol>
