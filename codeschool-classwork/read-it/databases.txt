@@ -1,0 +1,15 @@
+
+Students:
+name
+studentID
+Birthday
+TakesClasses = "101"
+
+Classes:
+name
+courseID
+Instructor
+Time
+
+
+"Beginner Math, 101, Steve, 9:09 AM", "Science", "English", "Art"
