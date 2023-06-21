@@ -13,6 +13,7 @@ const animalSchema = new mongoose.Schema({
     },
     email: {
         type: String,
+        unique: true
     },
     weight: Number,
     species: String,
@@ -23,7 +24,7 @@ const animalSchema = new mongoose.Schema({
 const Animal = mongoose.model("Animal", animalSchema);
 
 const newAnimal = new Animal({
-    name: "Marty the 4th",
+    name: "Marty the Lion",
     email: "Move@it.com",
     weight: 200,
     species: "Lion",
