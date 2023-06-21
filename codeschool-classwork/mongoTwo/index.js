@@ -7,7 +7,13 @@ mongoose.connect(process.env.DB_LINK)
 
 // sets up for our database
 const animalSchema = new mongoose.Schema({
-    name: String,
+    name: {
+        type: String,
+        required: [true, "Animal must have a name."]
+    },
+    email: {
+        type: String,
+    },
     weight: Number,
     species: String,
     birthday: Date
@@ -16,16 +22,21 @@ const animalSchema = new mongoose.Schema({
 // sets up for our code
 const Animal = mongoose.model("Animal", animalSchema);
 
-// const newAnimal = new Animal({
-//     name: "Skipper",
-//     weight: 20,
-//     species: "Penguin",
-//     birthday: new Date("Jun 20 1950")
-// })
+const newAnimal = new Animal({
+    name: "Marty the 4th",
+    email: "Move@it.com",
+    weight: 200,
+    species: "Lion",
+    birthday: new Date("Jun 20 1999")
+})
 
-// console.log(newAnimal);
+console.log(newAnimal);
 
-// newAnimal.save().then(console.log("done"));
+newAnimal.save().then(
+    console.log("done")
+    ).catch(function(errors) {
+        console.log(errors.errors)
+    });;
 
 // Finding animals (multiple):
 // Animal.find({"species": "Hippotomus", "weight": {$gte: 1000}}).then(function(animals) {
