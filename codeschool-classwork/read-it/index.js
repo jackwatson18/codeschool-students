@@ -1,18 +1,5 @@
 
 
-// example book
-const book = {
-    title: "Harry Potter",
-    author: "JK Rowling",
-    rating: 5
-}
-
-const myBooks = [{
-    title: "Harry Potter",
-    author: "JK Rowling",
-    rating: 5
-}];
-
 function bookValidator(book) {
     var errors = [];
     if (!book.title) {
@@ -24,48 +11,84 @@ function bookValidator(book) {
     if (!book.rating) {
         errors.push("Book must have a rating.");
     }
+    if (isNaN(book.rating)) {
+        errors.push("Rating must be a number.");
+    }
+    
     return errors;
 }
 
 const express = require("express");
 const cors = require("cors");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+
+dotenv.config();
+
+mongoose.connect(process.env.DB_LINK)
 
 const app = express();
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 
+
+const bookSchema = new mongoose.Schema({
+    title: {
+        type: String,
+        required: [true, "Must have a title."]
+    },
+    author: {
+        type: String,
+        required: [true, "Must have an author."]
+    },
+    rating: {
+        type: Number,
+        required: [true, "Must have a rating."]
+    }
+
+});
+
+const Book = mongoose.model("Book", bookSchema);
+
+
+
+
 app.get("/books", function(req, res) {
-    res.send(JSON.stringify(myBooks));
+    Book.find().then(function(books) {
+        res.send(books);
+    })
 })
 
 app.get("/books/:bookId", function(req, res) {
-    var index = req.params.bookId;
-
-    if (index >= 0 && index < myBooks.length) {
-        if (myBooks[index]) {
-            res.send(JSON.stringify(myBooks[index]));
+    Book.findOne({ "_id": req.params.bookId }).then(function(book) {
+        if (book) {
+            res.send(book);
         }
         else {
             res.status(404).send("Book not found.");
         }
-    }
-    else {
-        res.status(404).send("Book not found.");
-    }
+    }).catch(function(errors) {
+        console.log(errors);
+        res.status(422).send("Bad request.");
+    })
 });
 
 app.post("/books", function(req, res) {
-    var newBook = {
+    const newBook = new Book({
         title: req.body.title,
         author: req.body.author,
         rating: req.body.rating
-    }
+    });
 
     var errors = bookValidator(newBook);
 
     if (errors.length == 0) {
-        myBooks.push(newBook);
-        res.status(201).send("Book added.");
+        newBook.save().then(function() {
+            res.status(201).send("Created new book.");
+        }).catch(function(errors) {
+            console.log(errors);
+            res.status(400).send("Failed to save book.");
+        })
     }
     else {
         res.status(422).send(errors)
@@ -73,50 +96,56 @@ app.post("/books", function(req, res) {
 });
 
 app.delete("/books/:bookId", function(req, res) {
-    var index = req.params.bookId;
+    var bookId = req.params.bookId;
 
-    if (index >= 0 && index < myBooks.length) {
-        if (myBooks[index]) {
-            myBooks[index] = null;
-            res.status(204).send("Book deleted.");
+    Book.findOne({ "_id":bookId }).then(book => {
+        if (book) {
+            Book.deleteOne({ "_id":bookId }).then(result => {
+                console.log(result.deletedCount);
+                res.status(204).send("Book deleted.");
+            })
         }
         else {
-            res.status(404).send("Book not found.");
+            res.status(404).send("Book not found");
         }
-    }
-    else {
-        res.status(404).send("Book not found.");
-    }
+    }).catch(errors => {
+        console.log(errors);
+        res.status(400).send("Book not found/error deleting");
+    });
 })
 
 app.put("/books/:bookId", function(req, res) {
-    var index = req.params.bookId;
-    
-    var updatedBook = {
-        title: req.body.title,
-        author: req.body.author,
-        rating: req.body.rating
-    }
+    var bookId = req.params.bookId;
 
-    errors = bookValidator(updatedBook);
+    Book.findOne({ "_id":bookId }).then(book => {
+        if (book) {
+            // Prepare to update book
+            book.title = req.body.title;
+            book.author = req.body.author;
+            book.rating = req.body.rating;
 
-    if (index >= 0 && index < myBooks.length) {
-        if (myBooks[index]) {
-            if (errors.length == 0) {
-                myBooks[index] = updatedBook;
-                res.status(200).send("Book updated.");
+            let errorList = bookValidator(book);
+
+            if (errorList.length > 0) {
+                // errors occured in validation
+                res.status(422).send("Could not update book.");
             }
             else {
-                res.status(422).send(errors);
+                Book.findOneAndUpdate({ "_id":bookId }, book, {new: true, runValidators: true}).then(result => {
+                    res.status(200).send("Updated book.");
+                });
             }
+
+            
         }
         else {
+            // doesn't exist, can't update nothing
             res.status(404).send("Book not found.");
         }
-    }
-    else {
-        res.status(404).send("Book not found.");
-    }
+    }).catch(errors => {
+        console.log(errors);
+        res.status(400).send("Book not found.");
+    })
 
 })
 
