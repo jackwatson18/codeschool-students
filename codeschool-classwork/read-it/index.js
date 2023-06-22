@@ -1,6 +1,7 @@
 
 
 function bookValidator(book) {
+    console.log(book.rating);
     var errors = [];
     if (!book.title) {
         errors.push("Book must have a title.");
@@ -20,47 +21,22 @@ function bookValidator(book) {
 
 const express = require("express");
 const cors = require("cors");
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
-
-dotenv.config();
-
-mongoose.connect(process.env.DB_LINK)
+const model = require("./model.js")
 
 const app = express();
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 
 
-const bookSchema = new mongoose.Schema({
-    title: {
-        type: String,
-        required: [true, "Must have a title."]
-    },
-    author: {
-        type: String,
-        required: [true, "Must have an author."]
-    },
-    rating: {
-        type: Number,
-        required: [true, "Must have a rating."]
-    }
-
-});
-
-const Book = mongoose.model("Book", bookSchema);
-
-
-
 
 app.get("/books", function(req, res) {
-    Book.find().then(function(books) {
+    model.Book.find().then(function(books) {
         res.send(books);
     })
 })
 
 app.get("/books/:bookId", function(req, res) {
-    Book.findOne({ "_id": req.params.bookId }).then(function(book) {
+    model.Book.findOne({ "_id": req.params.bookId }).then(function(book) {
         if (book) {
             res.send(book);
         }
@@ -74,11 +50,12 @@ app.get("/books/:bookId", function(req, res) {
 });
 
 app.post("/books", function(req, res) {
-    const newBook = new Book({
+    const newBook = new model.Book({
         title: req.body.title,
         author: req.body.author,
         rating: req.body.rating
     });
+    console.log(newBook);
 
     var errors = bookValidator(newBook);
 
@@ -98,9 +75,9 @@ app.post("/books", function(req, res) {
 app.delete("/books/:bookId", function(req, res) {
     var bookId = req.params.bookId;
 
-    Book.findOne({ "_id":bookId }).then(book => {
+    model.Book.findOne({ "_id":bookId }).then(book => {
         if (book) {
-            Book.deleteOne({ "_id":bookId }).then(result => {
+            model.Book.deleteOne({ "_id":bookId }).then(result => {
                 console.log(result.deletedCount);
                 res.status(204).send("Book deleted.");
             })
@@ -117,21 +94,29 @@ app.delete("/books/:bookId", function(req, res) {
 app.put("/books/:bookId", function(req, res) {
     var bookId = req.params.bookId;
 
-    Book.findOne({ "_id":bookId }).then(book => {
+    model.Book.findOne({ "_id":bookId }).then(book => {
         if (book) {
             // Prepare to update book
-            book.title = req.body.title;
-            book.author = req.body.author;
-            book.rating = req.body.rating;
+            var newBook = {
+                title: req.body.title,
+                author: req.body.author,
+                rating: req.body.rating
+            }
 
-            let errorList = bookValidator(book);
+            let errorList = bookValidator(newBook);
 
             if (errorList.length > 0) {
                 // errors occured in validation
                 res.status(422).send("Could not update book.");
             }
             else {
-                Book.findOneAndUpdate({ "_id":bookId }, book, {new: true, runValidators: true}).then(result => {
+                book.title = req.body.title;
+                book.author = req.body.author;
+                book.rating = req.body.rating;
+    
+                console.log(book);
+
+                model.Book.findOneAndUpdate({ "_id":bookId }, book, {new: true, runValidators: true, context: "query"}).then((result) => {
                     res.status(200).send("Updated book.");
                 });
             }
