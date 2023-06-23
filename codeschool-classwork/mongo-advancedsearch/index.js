@@ -9,26 +9,28 @@ app.use(express.urlencoded({extended:false}));
 
 app.get("/movies", function(req, res) {
     var queryParams = {};
-    var minMaxProfit = {"$lte": 0, "$gte": 0};
 
-    console.log(req.query);
+  
 
+
+    // custom query creation
     for (key in req.query) {
         if (key == "profit_lte") {
-            req.query[key] = {"$lte": req.query[key]}
+            queryParams.profit = {"$lte": req.query[key]}
         }
         if (key == "profit_gte") {
-            req.query[key] = {"$gte": req.query[key]}
+            queryParams.profit = {"$gte": req.query[key]}
         }
     }
 
     // queryParams.profit = minMaxProfit;
-    console.log(minMaxProfit);
+    //console.log(minMaxProfit);
+    console.log(req.query);
     console.log(queryParams);
 
     
 
-    model.Movie.find(req.query).then(function(movies) {
+    model.Movie.find(queryParams).then(function(movies) {
         res.send(movies);
     })
 })
