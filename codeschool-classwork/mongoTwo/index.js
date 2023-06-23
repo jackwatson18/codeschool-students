@@ -31,10 +31,13 @@ const newAnimal = new Animal({
     birthday: new Date("Jun 20 1999")
 })
 
+
 console.log(newAnimal);
 
 newAnimal.save().then(
-    console.log("done")
+    function() {
+        console.log("done");
+    }
     ).catch(function(errors) {
         console.log(errors.errors)
     });;
