@@ -10,10 +10,7 @@ const bookSchema = new mongoose.Schema({
         type: String,
         required: [true, "Must have a title."]
     },
-    author: {
-        type: String,
-        required: [true, "Must have an author."]
-    },
+    author: { type: mongoose.Schema.Types.ObjectId, ref: 'Author' },
     rating: {
         type: Number,
         required: [true, "Must have a rating."]
@@ -21,9 +18,18 @@ const bookSchema = new mongoose.Schema({
 
 });
 
-const Book = mongoose.model("Book", bookSchema);
+const authorSchema = new mongoose.Schema({
+    name: String,
+    birthday: Date,
+    nationality: String,
+    awards: [String]
+})
 
+const Book = mongoose.model("Book", bookSchema);
+const Author = mongoose.model("Author", authorSchema);
 
 module.exports = {
-    Book: Book
+    Book: Book,
+    Author: Author
 }
+

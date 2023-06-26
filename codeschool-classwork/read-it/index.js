@@ -1,14 +1,16 @@
 
 
+
+
 function bookValidator(book) {
     console.log(book.rating);
     var errors = [];
     if (!book.title) {
         errors.push("Book must have a title.");
     }
-    if (!book.author) {
-        errors.push("Book must have an author.");
-    }
+    // if (!book.author) {
+    //     errors.push("Book must have an author.");
+    // }
     if (!book.rating) {
         errors.push("Book must have a rating.");
     }
@@ -27,16 +29,41 @@ const app = express();
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 
+// author
+app.get("/authors", function(req, res) {
+    model.Author.find().then(authors => {
+        res.send(authors);
+    })
+})
 
+app.post("/authors", function(req, res) {
+    const newAuthor = new model.Author({
+        name: req.body.name,
+        birthday: req.body.birthday,
+        nationality: req.body.nationality,
+        awards: req.body.awards
+    });
+
+    newAuthor.save().then(() => {
+        res.status(200).send();
+    }
+    ).catch(errors => {
+        console.log(errors);
+        res.status(400).send();
+    })
+})
+
+
+// books
 
 app.get("/books", function(req, res) {
-    model.Book.find().then(function(books) {
+    model.Book.find().populate("author").then(function(books) {
         res.send(books);
     })
 })
 
 app.get("/books/:bookId", function(req, res) {
-    model.Book.findOne({ "_id": req.params.bookId }).then(function(book) {
+    model.Book.findOne({ "_id": req.params.bookId }).populate("author").then(function(book) {
         if (book) {
             res.send(book);
         }
@@ -135,6 +162,7 @@ app.put("/books/:bookId", function(req, res) {
 })
 
 app.listen(8080, function() {
+
     console.log("Server is running!");
 })
 
