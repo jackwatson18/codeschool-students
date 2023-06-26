@@ -7,13 +7,7 @@ dotenv.config() // Import environmental variables
 mongoose.set('strictQuery', false);
 mongoose.connect(process.env.DB_PASSWORD);
 
-const QuizSchema = Schema({
-    title: {
-        type: String,
-        required: [true, "Quiz must have a title."]
-    },
-    description: String
-})
+
 
 const QuestionSchema = Schema({
     text: {
@@ -29,8 +23,17 @@ const QuestionSchema = Schema({
     }]
 })
 
-const Quiz = mongoose.model("Quiz", QuizSchema);
+const QuizSchema = Schema({
+    title: {
+        type: String,
+        required: [true, "Quiz must have a title."]
+    },
+    description: String,
+    questions: [{ type: Schema.Types.ObjectId, ref: 'Question' }]
+})
+
 const Question = mongoose.model("Question", QuestionSchema);
+const Quiz = mongoose.model("Quiz", QuizSchema);
 
 module.exports = {
     Quiz: Quiz,
