@@ -6,6 +6,24 @@ const model = require("./model");
 const app = express();
 app.use(express.urlencoded({ extended: false }));
 
+function AuthMiddleware(req, res, next) {
+    if (req.session && req.session.userId) {
+        model.User.findOne({ "_id":req.session.userId }).then(user => {
+            if (user) {
+                req.user = user;
+                next(); // proceed to next process
+            }
+            else {
+                res.status(401).send("Unauthenticated."); // supposed user doesn't exist
+            }
+        })
+    } 
+    else {
+        res.status(401).send("Unauthenticated."); // no session to authorize
+    }
+}
+
+
 app.use(session({
     // secret is a random string we use for a password. In practice, this should NEVER be stored in the open!
     // however, since we are learning, this is fine for now.
@@ -13,6 +31,26 @@ app.use(session({
     saveUninitialized: true,
     resave: false
 }));
+
+app.get("/blueprints", AuthMiddleware, function(req, res) {
+    model.Blueprint.find().then(blueprints => {
+        res.send(blueprints);
+    })
+})
+
+app.post("/blueprints", AuthMiddleware, function(req, res) {
+    const newBlueprint = new model.Blueprint({
+        title: req.body.title,
+        description: req.body.description
+    });
+
+    newBlueprint.save().then(()=>{
+        res.status(201).send("New blueprint created.");
+    }).catch(errors => {
+        console.log(errors);
+        res.status(422).send("Error creating blueprint.");
+    })
+})
 
 app.get("/users", function(req, res) {
         model.User.find().then(users => {
@@ -31,6 +69,40 @@ app.post("/users", function(req,res) {
         res.status(201).send("User created.");
     }).catch(errors => {
         res.status(422).send("Couldn't create user.");
+    })
+})
+
+app.put("/users/:userId", AuthMiddleware, function(req, res) {
+    model.User.findOne({ "_id":req.params.userId }).then(user => {
+        if (user) {
+            user.email = req.body.email,
+            user.password = req.body.password,
+            user.name = req.body.name
+
+            user.save().then(function() {
+                res.status(200).send("Updated user.");
+            }).catch(errors => {
+                console.log(errors);
+                res.status(422).send("Error updating user.");
+            })
+        }
+        else {
+            res.status(404).send("User not found.");
+        }
+    })
+})
+
+app.delete("/users/:userId", AuthMiddleware, function(req, res) {
+    model.User.findOne({ "_id":req.params.userId }).then(user => {
+        if (user) {
+            model.User.deleteOne({ "_id":req.params.userId }).then(() => {
+                res.status(204).send("deleted.");
+            }
+            )
+        }
+        else {
+            res.status(404).send("User not found.");
+        }
     })
 })
 

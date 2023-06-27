@@ -7,6 +7,13 @@ dotenv.config() // Import environmental variables
 mongoose.set('strictQuery', false);
 mongoose.connect(process.env.DB_PASSWORD);
 
+const BlueprintSchema = new Schema({
+    title: {
+        type: String,
+        required: [true, "Blueprint must be titled."]
+    },
+    description: String
+})
 
 const UserSchema = new Schema({
     email: {
@@ -22,7 +29,9 @@ const UserSchema = new Schema({
 })
 
 const User = mongoose.model("User", UserSchema);
+const Blueprint = mongoose.model("Blueprint", BlueprintSchema);
 
 module.exports = {
-   User: User
+   User: User,
+   Blueprint: Blueprint
 }
