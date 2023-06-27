@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const session = require("express-session");
 const model = require("./model");
+const bcrypt = require("bcrypt");
 
 const app = express();
 app.use(express.urlencoded({ extended: false }));
@@ -59,17 +60,23 @@ app.get("/users", function(req, res) {
     })
 
 app.post("/users", function(req,res) {
-    const newUser = new model.User({
-        email: req.body.email,
-        password: req.body.password,
-        name: req.body.name
-    });
-
-    newUser.save().then(() => {
-        res.status(201).send("User created.");
-    }).catch(errors => {
-        res.status(422).send("Couldn't create user.");
+    
+    bcrypt.hash(req.body.password, 12).then(encryptedPassword => {
+        const newUser = new model.User({
+            email: req.body.email,
+            password: encryptedPassword,
+            name: req.body.name
+        });
+    
+        newUser.save().then(() => {
+            res.status(201).send("User created.");
+        }).catch(errors => {
+            console.log(errors);
+            res.status(422).send("Couldn't create user.");
+        })
     })
+
+    
 })
 
 app.put("/users/:userId", AuthMiddleware, function(req, res) {
@@ -118,7 +125,7 @@ app.post("/session", function(req, res) {
     model.User.findOne({ "email":req.body.email }).then(user => {
         if (user) {
             // user exists, now check password
-            if (req.body.password == user.password) {
+            if (bcrypt.compare(req.body.password, user.password)) {
                 // password matches
                 req.session.userId = user._id;
                 req.session.name = user.name;
