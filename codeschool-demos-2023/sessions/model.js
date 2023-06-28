@@ -58,7 +58,38 @@ UserSchema.methods.verifyPassword = function(plainPassword) {
 const User = mongoose.model("User", UserSchema);
 const Blueprint = mongoose.model("Blueprint", BlueprintSchema);
 
+const RedactedUser = mongoose.model("RedactedUser", UserSchema);
+
+User.createCollection()
+
+RedactedUser.createCollection({
+    viewOn: "users",
+    pipeline: [
+        {
+            $set: {
+                name: "$name",
+                email: "$email",
+                password: "***"
+            }
+        }
+    ]
+});
+
+// RedactedUser.createCollection({
+//     viewOn: "users",
+//     pipeline: [
+//         {
+//             $set: {
+//                 name: {$concat: [{ $substr: ["$name", 0, 3] }, "..."]},
+//                 email: { $concat: [{ $substr: ["$email", 0, 3] }, "..."]},
+//                 password: "***"
+//             }
+//         }
+//     ]
+// })
+
 module.exports = {
    User: User,
+   RedactedUser: RedactedUser,
    Blueprint: Blueprint
 }

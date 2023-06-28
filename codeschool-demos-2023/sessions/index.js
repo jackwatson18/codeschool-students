@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const session = require("express-session");
 const model = require("./model");
 const bcrypt = require("bcrypt");
+const cors = require("cors");
 
 const app = express();
 app.use(express.urlencoded({ extended: false }));
@@ -24,6 +25,11 @@ function AuthMiddleware(req, res, next) {
     }
 }
 
+app.use(cors({
+    credentials: true,
+    origin: function (origin, callback) {
+        callback(null, origin);
+    }}));
 
 app.use(session({
     // secret is a random string we use for a password. In practice, this should NEVER be stored in the open!
@@ -35,6 +41,7 @@ app.use(session({
 
 app.get("/blueprints", AuthMiddleware, function(req, res) {
     model.Blueprint.find().then(blueprints => {
+
         res.send(blueprints);
     })
 })
@@ -54,7 +61,8 @@ app.post("/blueprints", AuthMiddleware, function(req, res) {
 })
 
 app.get("/users", function(req, res) {
-        model.User.find().then(users => {
+        model.RedactedUser.find().then(users => {
+
             res.send(users);
         })
     })
@@ -147,7 +155,12 @@ app.post("/session", function(req, res) {
     })
 })
 
-app.listen(8080, function() {
+const PORT = 8080;
+
+app.listen(PORT, function() {
     console.log("Server running port 8080");
+    model.RedactedUser.find().then(users => {
+        console.log(users);
+    })
 
 })
