@@ -61,22 +61,19 @@ app.get("/users", function(req, res) {
 
 app.post("/users", function(req,res) {
     
-    bcrypt.hash(req.body.password, 12).then(encryptedPassword => {
         const newUser = new model.User({
             email: req.body.email,
-            password: encryptedPassword,
             name: req.body.name
         });
-    
-        newUser.save().then(() => {
-            res.status(201).send("User created.");
-        }).catch(errors => {
-            console.log(errors);
-            res.status(422).send("Couldn't create user.");
+        newUser.setPassword(req.body.password).then(function() {
+            newUser.save().then(() => {
+                res.status(201).send("User created.");
+            }).catch(errors => {
+                console.log(errors);
+                res.status(422).send("Couldn't create user.");
+            }) 
         })
-    })
-
-    
+        
 })
 
 app.put("/users/:userId", AuthMiddleware, function(req, res) {
@@ -125,21 +122,25 @@ app.post("/session", function(req, res) {
     model.User.findOne({ "email":req.body.email }).then(user => {
         if (user) {
             // user exists, now check password
-            if (bcrypt.compare(req.body.password, user.password)) {
-                // password matches
-                req.session.userId = user._id;
-                req.session.name = user.name;
-                res.status(201).send("Session created.");
-            }
-            else {
-                // passwords don't match
-                res.status(401).send("Couldn't authenticate. Check email/password.")
-            }
+            user.verifyPassword(req.body.password).then(result => {
+                console.log(result);
+                if (result) {
+                    // password matches
+                    req.session.userId = user._id;
+                    req.session.name = user.name;
+                    res.status(201).send("Session created.");
+                }
+                else {
+                    // passwords don't match
+                    res.status(401).send("Couldn't authenticate 2. Check email/password.")
+                }
+            })
+            
         }
         else {
             // user doesn't exist
             // 404 would expose user information about who is signed up or not. 401 is unauthenticated.
-            res.status(401).send("Couldn't authenticate. Check email/password.");
+            res.status(401).send("Couldn't authenticate 1. Check email/password.");
         }
     }).catch(errors => {
         res.status(400).send("Couldn't process request.");
@@ -148,4 +149,5 @@ app.post("/session", function(req, res) {
 
 app.listen(8080, function() {
     console.log("Server running port 8080");
+
 })
